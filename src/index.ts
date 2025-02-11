@@ -23,6 +23,60 @@ app.get("/login", async (c) => {
   return c.redirect((await client.authorize(redirectUri, "code")).url);
 });
 
+app.get("/scope/:scope", async (c) => {
+  const needToGetTo = c.req.header("X-Forwarded-Uri") || `${redirectUri}`;
+
+  const scope = c.req.param("scope");
+
+  const accessToken = getCookie(c, `${hostname}_access_token`);
+  const refreshToken = getCookie(c, `${hostname}_refresh_token`);
+
+  if (!accessToken || !refreshToken) {
+    if (c.req.header("X-Forwarded-Method") === "GET") {
+      setCookie(c, `${hostname}_final_path`, needToGetTo);
+    }
+    return c.redirect((await client.authorize(redirectUri, "code")).url);
+  }
+
+  const verified = await client.verify(subjects, accessToken, {
+    refresh: refreshToken,
+  });
+
+  if (verified.err) {
+    if (c.req.header("X-Forwarded-Method") === "GET") {
+      setCookie(c, `${hostname}_final_path`, needToGetTo);
+    }
+    console.log(verified.err);
+    return c.redirect((await client.authorize(redirectUri, "code")).url);
+  }
+
+  if (verified.tokens) {
+    setCookie(c, `${hostname}_access_token`, verified.tokens.access, {
+      domain: process.env.COOKIE_DOMAIN,
+    });
+    setCookie(c, `${hostname}_refresh_token`, verified.tokens.refresh, {
+      domain: process.env.COOKIE_DOMAIN,
+    });
+  }
+
+  c.status(200);
+
+  if (verified.subject.type !== "user") {
+    throw new Error("Not a user");
+  }
+
+  if (!verified.subject.properties.scopes.includes(scope)) {
+    throw new Error("Not authorized");
+  }
+
+  c.header("DREWH-USER-ID", verified.subject.properties.userId);
+  c.header("DREWH-USER-IDENTITY", verified.subject.properties.identifer);
+
+  return c.json({
+    ok: true,
+  });
+});
+
 app.get("/forward", async (c) => {
   // Comes from caddy forward_auth
   const needToGetTo = c.req.header("X-Forwarded-Uri") || `${redirectUri}`;
