@@ -39,7 +39,9 @@ app.get("/scope/:scope", async (c) => {
 
   if (!accessToken || !refreshToken) {
     if (c.req.header("X-Forwarded-Method") === "GET") {
-      setCookie(c, `${hostname}_final_path`, needToGetTo);
+      setCookie(c, `${hostname}_final_path`, needToGetTo, {
+        domain: process.env.COOKIE_DOMAIN,
+      });
     }
     return c.redirect(stopperUrl);
   }
@@ -50,7 +52,9 @@ app.get("/scope/:scope", async (c) => {
 
   if (verified.err) {
     if (c.req.header("X-Forwarded-Method") === "GET") {
-      setCookie(c, `${hostname}_final_path`, needToGetTo);
+      setCookie(c, `${hostname}_final_path`, needToGetTo, {
+        domain: process.env.COOKIE_DOMAIN,
+      });
     }
     console.log(verified.err);
     return c.redirect((await client.authorize(redirectUri, "code")).url);
@@ -92,7 +96,9 @@ app.get("/forward", async (c) => {
 
   if (!accessToken || !refreshToken) {
     if (c.req.header("X-Forwarded-Method") === "GET") {
-      setCookie(c, `${hostname}_final_path`, needToGetTo);
+      setCookie(c, `${hostname}_final_path`, needToGetTo, {
+        domain: process.env.COOKIE_DOMAIN,
+      });
     }
     return c.redirect(stopperUrl);
   }
@@ -103,7 +109,9 @@ app.get("/forward", async (c) => {
 
   if (verified.err) {
     if (c.req.header("X-Forwarded-Method") === "GET") {
-      setCookie(c, `${hostname}_final_path`, needToGetTo);
+      setCookie(c, `${hostname}_final_path`, needToGetTo, {
+        domain: process.env.COOKIE_DOMAIN,
+      });
     }
     console.log(verified.err);
     return c.redirect(stopperUrl);
@@ -155,7 +163,9 @@ app.get("/callback", async (c) => {
 
   const finalPath = getCookie(c, `${hostname}_final_path`);
   if (finalPath) {
-    setCookie(c, `${hostname}_final_path`, "");
+    setCookie(c, `${hostname}_final_path`, "", {
+      domain: process.env.COOKIE_DOMAIN,
+    });
     return c.redirect(finalPath);
   }
 
