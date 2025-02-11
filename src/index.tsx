@@ -15,6 +15,7 @@ const client = createClient({
 const hostname = process.env.HOSTNAME;
 
 const redirectUri = process.env.FRONTEND_URL! + "/callback";
+const stopperUrl = process.env.FRONTEND_URL! + "/stop";
 
 app.get("/", (c) => {
   return c.text("Hello Hono!");
@@ -40,7 +41,7 @@ app.get("/scope/:scope", async (c) => {
     if (c.req.header("X-Forwarded-Method") === "GET") {
       setCookie(c, `${hostname}_final_path`, needToGetTo);
     }
-    return c.redirect("/stop");
+    return c.redirect(stopperUrl);
   }
 
   const verified = await client.verify(subjects, accessToken, {
@@ -93,7 +94,7 @@ app.get("/forward", async (c) => {
     if (c.req.header("X-Forwarded-Method") === "GET") {
       setCookie(c, `${hostname}_final_path`, needToGetTo);
     }
-    return c.redirect("/stop");
+    return c.redirect(stopperUrl);
   }
 
   const verified = await client.verify(subjects, accessToken, {
@@ -105,7 +106,7 @@ app.get("/forward", async (c) => {
       setCookie(c, `${hostname}_final_path`, needToGetTo);
     }
     console.log(verified.err);
-    return c.redirect("/stop");
+    return c.redirect(stopperUrl);
   }
 
   if (verified.tokens) {
