@@ -8,5 +8,5 @@ COPY tsconfig.json ./
 
 RUN bun install
 
-CMD ["bun", "run", "src/index.ts"]
+CMD ["bun", "run", "src/index.tsx"]
 

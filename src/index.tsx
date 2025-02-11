@@ -3,6 +3,7 @@ import { authApp } from "./openauth/issuer";
 import { createClient } from "@openauthjs/openauth/client";
 import { getCookie, setCookie } from "hono/cookie";
 import { subjects } from "./openauth/subjects";
+import { Stopper, Success } from "./stopper";
 
 const app = new Hono();
 
@@ -23,6 +24,10 @@ app.get("/login", async (c) => {
   return c.redirect((await client.authorize(redirectUri, "code")).url);
 });
 
+app.get("/stop", (c) => {
+  return c.html(<Stopper />);
+});
+
 app.get("/scope/:scope", async (c) => {
   const needToGetTo = c.req.header("X-Forwarded-Uri") || `${redirectUri}`;
 
@@ -35,7 +40,7 @@ app.get("/scope/:scope", async (c) => {
     if (c.req.header("X-Forwarded-Method") === "GET") {
       setCookie(c, `${hostname}_final_path`, needToGetTo);
     }
-    return c.redirect((await client.authorize(redirectUri, "code")).url);
+    return c.redirect("/stop");
   }
 
   const verified = await client.verify(subjects, accessToken, {
@@ -88,7 +93,7 @@ app.get("/forward", async (c) => {
     if (c.req.header("X-Forwarded-Method") === "GET") {
       setCookie(c, `${hostname}_final_path`, needToGetTo);
     }
-    return c.redirect((await client.authorize(redirectUri, "code")).url);
+    return c.redirect("/stop");
   }
 
   const verified = await client.verify(subjects, accessToken, {
@@ -100,7 +105,7 @@ app.get("/forward", async (c) => {
       setCookie(c, `${hostname}_final_path`, needToGetTo);
     }
     console.log(verified.err);
-    return c.redirect((await client.authorize(redirectUri, "code")).url);
+    return c.redirect("/stop");
   }
 
   if (verified.tokens) {
@@ -153,7 +158,7 @@ app.get("/callback", async (c) => {
     return c.redirect(finalPath);
   }
 
-  return c.text("Success");
+  return c.html(<Success />);
 });
 
 app.route("/", authApp);
