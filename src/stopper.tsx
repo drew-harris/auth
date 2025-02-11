@@ -14,7 +14,7 @@ export const Stopper = () => {
             </legend>
             <div class="">
               You are not logged in or you don't have enough permission to view
-              this page. If you think this is an error, go talk to Drew.
+              this page. If you think this is an error, please contact drew.
             </div>
             <div class="flex py-4 mt-4 gap-8 w-full justify-evenly mx-auto">
               <a href="/login" class="underline">
