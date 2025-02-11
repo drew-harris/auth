@@ -1,0 +1,20 @@
+{
+  "name": "auth",
+  "scripts": {
+    "dev": "bun run --hot src/index.ts"
+  },
+  "dependencies": {
+    "@openauthjs/openauth": "^0.3.7",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.39.2",
+    "hono": "^4.6.20",
+    "pg": "^8.13.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/pg": "^8.11.11",
+    "drizzle-kit": "^0.30.4",
+    "tsx": "^4.19.2"
+  }
+}

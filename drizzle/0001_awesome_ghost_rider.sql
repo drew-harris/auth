@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "scopes" varchar(255)[] DEFAULT '{}' NOT NULL;
